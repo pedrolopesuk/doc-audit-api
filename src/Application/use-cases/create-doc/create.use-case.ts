@@ -4,6 +4,7 @@ import { Dependency } from '../../../Domain/dependency/dependency.entity';
 import { IDocumentRepository } from '../../interfaces/document-repository.interface';
 import { IEstablishmentRepository } from '../../interfaces/establishment-repository.interface';
 import { CreateDocumentInput } from '../../interfaces/create-document.input';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class CreateDocumentUseCase {
@@ -45,7 +46,7 @@ export class CreateDocumentUseCase {
 
     // Criar instância de documento
     const document = new Document(
-      0, // será atribuído pelo repositório
+      randomUUID(), // será atribuído pelo repositório
       name,
       type,
       issuanceFee,
@@ -63,7 +64,7 @@ export class CreateDocumentUseCase {
     if (dependencies && dependencies.length > 0) {
       for (const dep of dependencies) {
         const dependency = new Dependency(
-          0,
+          randomUUID(),
           created.id,
           dep.dependentDocumentId,
           dep.type ?? 'reference',

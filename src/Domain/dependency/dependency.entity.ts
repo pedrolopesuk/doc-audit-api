@@ -1,8 +1,8 @@
 export class Dependency {
   constructor(
-    public readonly id: number,
-    public readonly documentId: number,
-    public readonly dependentDocumentId: number,
+    public readonly id: string,
+    public readonly documentId: string,
+    public readonly dependentDocumentId: string,
     public readonly type: string, // ex: 'reference', 'legal', etc
   ) {}
 

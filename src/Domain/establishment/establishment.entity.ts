@@ -1,6 +1,6 @@
 export class Establishment {
   constructor(
-    public readonly id: number,
+    public readonly id: string,
     public name: string,
     public cnpj: string,
     public address: string,

@@ -6,9 +6,9 @@ export interface CreateDocumentInput {
   number?: string | null;
   issueDate: Date;
   expirationDate: Date;
-  establishmentId: number;
+  establishmentId: string;
   dependencies?: {
-    dependentDocumentId: number;
+    dependentDocumentId: string;
     type?: string;
   }[];
 }
