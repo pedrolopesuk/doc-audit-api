@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Document } from '../../../Domain/document/doc.entity';
 import { Dependency } from '../../../Domain/dependency/dependency.entity';
 import { IDocumentRepository } from '../../interfaces/document-repository.interface';
@@ -9,7 +9,9 @@ import { randomUUID } from 'crypto';
 @Injectable()
 export class CreateDocumentUseCase {
   constructor(
+    @Inject('IDocumentRepository')
     private readonly documentRepository: IDocumentRepository,
+    @Inject('IEstablishmentRepository')
     private readonly establishmentRepository: IEstablishmentRepository,
   ) {}
 
