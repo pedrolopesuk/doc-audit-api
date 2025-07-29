@@ -6,10 +6,45 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Estabelecimento {
+  id           String      @id @default(uuid())
+  nome         String
+  cnpj         String      @unique
+  endereco     String
+  documentos   Documento[] // relação 1:N
+}
+
+model Documento {
+  id               String       @id @default(uuid())
+  nome             String
+  tipo             String
+  descricao        String?
+  numero           String?
+  dataEmissao      DateTime
+  validade         DateTime
+  taxaEmissao      String
+  estabelecimento  Estabelecimento @relation(fields: [estabelecimentoId], references: [id])
+  estabelecimentoId String
+  dependencias     Dependencia[] @relation("Dependente")
+  requeridoPor      Dependencia[] @relation("Requisito")
+}
+
+model Dependencia {
+  id                 String    @id @default(uuid())
+  documento          Documento @relation("Dependente", fields: [documentoId], references: [id])
+  documentoId        String
+
+  dependeDe          Documento @relation("Requisito", fields: [dependeDeId], references: [id])
+  dependeDeId        String
+
+  tipo               String
+
+  @@unique([documentoId, dependeDeId])
 }

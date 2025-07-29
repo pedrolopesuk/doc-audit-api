@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Document } from '../../../Domain/document/doc.entity';
-import { Dependency } from '../../../Domain/dependency/dependency.entity';
+import { documentDependency } from '../../../Domain/documentDependency/documentDependency.entity';
 import { IDocumentRepository } from '../../interfaces/document-repository.interface';
 import { IEstablishmentRepository } from '../../interfaces/establishment-repository.interface';
-import { CreateDocumentInput } from '../../interfaces/create-document.input';
 
 @Injectable()
 export class CreateDocumentUseCase {
@@ -18,9 +17,10 @@ export class CreateDocumentUseCase {
       type,
       issuanceFee,
       description,
-      number,
+      fee,
       issueDate,
       expirationDate,
+      establishmentDate,
       establishmentId,
       dependencies,
     } = input;
@@ -45,15 +45,16 @@ export class CreateDocumentUseCase {
 
     // Criar instância de documento
     const document = new Document(
-      0, // será atribuído pelo repositório
       name,
       type,
       issuanceFee,
       description ?? null,
-      number ?? null,
+      fee,
       issueDate,
       expirationDate,
+      establishmentDate,
       establishmentId,
+      dependencies ?? [],
     );
 
     // Persistir o documento
@@ -62,11 +63,10 @@ export class CreateDocumentUseCase {
     // Criar dependências, se houver
     if (dependencies && dependencies.length > 0) {
       for (const dep of dependencies) {
-        const dependency = new Dependency(
-          0,
-          created.id,
-          dep.dependentDocumentId,
+        const dependency = new documentDependency(
+          document.getId(),
           dep.type ?? 'reference',
+          dep.documentId,
         );
         await this.documentRepository.addDependency(dependency);
       }
@@ -74,4 +74,16 @@ export class CreateDocumentUseCase {
 
     return created;
   }
+}
+interface CreateDocumentInput {
+  name: string;
+  type: string;
+  issuanceFee: string;
+  description?: string | null;
+  fee: number | null;
+  issueDate: Date;
+  expirationDate: Date;
+  establishmentDate: Date;
+  establishmentId: string;
+  dependencies?: documentDependency[];
 }
