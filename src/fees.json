@@ -1,0 +1,26 @@
+{
+  "identity": {
+    "documentType": "0001",
+    "fees": {
+      "issuance": 50,
+      "renewal": 30,
+      "update": 15
+    }
+  },
+  "driverLicense": {
+    "documentType": "0002",
+    "fees": {
+      "issuance": 100,
+      "renewal": 70,
+      "update": 25
+    }
+  },
+  "passport": {
+    "documentType": "0003",
+    "fees": {
+      "issuance": 200,
+      "renewal": 150,
+      "update": 50
+    }
+  }
+}
