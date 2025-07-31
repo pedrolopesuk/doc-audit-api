@@ -7,12 +7,20 @@ import { PrismaEstablishmentRepository } from './Infra/prisma/prisma-establishme
 import { CreateDocumentUseCase } from './Application/use-cases/create-doc/create.use-case';
 import { DocumentsController } from './controllers/documents.controller';
 import { EstablishmentsController } from './controllers/establishments.controller';
+import { FeesController } from './controllers/fees.controller';
+import { FeeJsonReaderService } from './Infra/services/fee-json-reader.service';
+import { ImportFeesUseCase } from './Application/use-cases/read-fees/import-fees.use-case';
 
 @Module({
   imports: [],
-  controllers: [AppController, DocumentsController, EstablishmentsController],
+  controllers: [
+    AppController,
+    DocumentsController,
+    EstablishmentsController,
+    FeesController,
+  ],
   providers: [
-    AppService, 
+    AppService,
     PrismaService,
     PrismaDocumentRepository,
     PrismaEstablishmentRepository,
@@ -25,6 +33,8 @@ import { EstablishmentsController } from './controllers/establishments.controlle
       provide: 'IEstablishmentRepository',
       useClass: PrismaEstablishmentRepository,
     },
+    FeeJsonReaderService,
+    ImportFeesUseCase,
   ],
 })
 export class AppModule {}

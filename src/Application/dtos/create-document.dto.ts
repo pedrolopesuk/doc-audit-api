@@ -1,4 +1,14 @@
-import { IsString, IsNotEmpty, IsOptional, IsDateString, IsArray, ValidateNested, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  IsUUID,
+  IsDate,
+  IsNumber,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateDependencyDto {
@@ -11,42 +21,48 @@ export class CreateDependencyDto {
   type?: string;
 }
 
+class FeeInput {
+  @IsString()
+  @IsNotEmpty()
+  type: string;
+
+  @IsNumber()
+  amount: number;
+}
+
+class DependencyInput {
+  @IsUUID()
+  documentId: string;
+  @IsUUID()
+  dependentDocumentId: string;
+}
+
 export class CreateDocumentDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsString()
-  @IsNotEmpty()
-  type: string;
+  @IsEnum(DocumentType)
+  type: DocumentType;
 
-  @IsString()
-  @IsNotEmpty()
-  issuanceFee: string;
-
-  @IsString()
   @IsOptional()
-  description?: string;
-
   @IsString()
-  @IsOptional()
-  number?: string;
+  description?: string | null;
 
-  @IsDateString()
-  @IsNotEmpty()
-  issueDate: string;
+  @IsDate()
+  @Type(() => Date)
+  issueDate: Date;
 
-  @IsDateString()
-  @IsNotEmpty()
-  expirationDate: string;
+  @IsDate()
+  @Type(() => Date)
+  expirationDate: Date;
 
   @IsUUID()
-  @IsNotEmpty()
   establishmentId: string;
 
-  @IsArray()
   @IsOptional()
+  @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateDependencyDto)
-  dependencies?: CreateDependencyDto[];
+  @Type(() => DependencyInput)
+  dependencies?: DependencyInput[];
 }

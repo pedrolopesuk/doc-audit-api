@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Param, ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ValidationPipe,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { CreateDocumentUseCase } from '../Application/use-cases/create-doc/create.use-case';
 import { CreateDocumentDto } from '../Application/dtos/create-document.dto';
 import { PrismaDocumentRepository } from '../Infra/prisma/prisma-document.repository';
 import { Document } from '../Domain/document/doc.entity';
+import { toDocumentResponseDto } from '../Application/mappers/response-document.mapper';
+import { DocumentResponseDto } from '../Application/dtos/response-document.dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -12,7 +23,9 @@ export class DocumentsController {
   ) {}
 
   @Post()
-  async create(@Body(ValidationPipe) createDocumentDto: CreateDocumentDto): Promise<Document> {
+  async create(
+    @Body(ValidationPipe) createDocumentDto: CreateDocumentDto,
+  ): Promise<Document> {
     try {
       const input = {
         ...createDocumentDto,
@@ -30,9 +43,13 @@ export class DocumentsController {
   }
 
   @Get('establishment/:establishmentId')
-  async getDocumentsByEstablishment(@Param('establishmentId') establishmentId: string): Promise<Document[]> {
+  async getDocumentsByEstablishment(
+    @Param('establishmentId') establishmentId: string,
+  ): Promise<Document[]> {
     try {
-      return await this.documentRepository.getEstablishmentById(establishmentId);
+      return await this.documentRepository.getEstablishmentById(
+        establishmentId,
+      );
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to retrieve documents',
@@ -42,13 +59,14 @@ export class DocumentsController {
   }
 
   @Get(':id')
-  async getDocumentById(@Param('id') id: string): Promise<Document> {
+  async getDocumentById(@Param('id') id: string): Promise<DocumentResponseDto> {
     try {
       const document = await this.documentRepository.findById(id);
       if (!document) {
         throw new HttpException('Document not found', HttpStatus.NOT_FOUND);
       }
-      return document;
+
+      return toDocumentResponseDto(document);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

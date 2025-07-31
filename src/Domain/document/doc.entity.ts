@@ -1,17 +1,107 @@
+import { randomUUID } from 'crypto';
+import { Dependency } from '../dependency/dependency.entity';
+import { DocumentFee } from '../document/docfee.entity';
+
 export class Document {
+  private _id: string;
+  private _name: string;
+  private _type: DocumentType;
+  private _issueDate: Date;
+  private _description: string | null;
+  private _expirationDate: Date;
+  private _establishmentId: string;
+  private _dependencies: Dependency[];
+  private _documentFees: DocumentFee[];
+
   constructor(
-    public readonly id: string,
-    public name: string,
-    public type: string,
-    public issuanceFee: string,
-    public description: string | null,
-    public number: string | null,
-    public issueDate: Date,
-    public expirationDate: Date,
-    public establishmentId: string,
-  ) {}
+    name: string,
+    type: DocumentType,
+    description: string | null,
+    issueDate: Date,
+    expirationDate: Date,
+    establishmentId: string,
+    dependencies: Dependency[] | null,
+  ) {
+    this._id = randomUUID();
+    this._name = name;
+    this._type = type;
+    this._description = description;
+    this._issueDate = issueDate;
+    this._expirationDate = expirationDate;
+    this._establishmentId = establishmentId;
+    this._dependencies = dependencies || [];
+    this._documentFees = [];
+  }
 
   isExpired(reference: Date = new Date()): boolean {
-    return this.expirationDate < reference;
+    return this.getExpirationDate() < reference;
+  }
+
+  getId(): string {
+    return this._id;
+  }
+
+  getName(): string {
+    return this._name;
+  }
+
+  getType(): DocumentType {
+    return this._type;
+  }
+
+  getIssueDate(): Date {
+    return this._issueDate;
+  }
+
+  getDescription(): string | null {
+    return this._description;
+  }
+
+  getExpirationDate(): Date {
+    return this._expirationDate;
+  }
+
+  getEstablishmentId(): string {
+    return this._establishmentId;
+  }
+
+  getDependencies(): Dependency[] {
+    return this._dependencies;
+  }
+
+  getDocumentFees(): DocumentFee[] {
+    return this._documentFees;
+  }
+
+  setName(name: string): void {
+    this._name = name;
+  }
+
+  setType(type: DocumentType): void {
+    this._type = type;
+  }
+
+  setDescription(description: string | null): void {
+    this._description = description;
+  }
+
+  setIssueDate(issueDate: Date): void {
+    this._issueDate = issueDate;
+  }
+
+  setExpirationDate(expirationDate: Date): void {
+    this._expirationDate = expirationDate;
+  }
+
+  setEstablishmentId(establishmentId: string): void {
+    this._establishmentId = establishmentId;
+  }
+
+  setDependencies(dependencies: Dependency[]): void {
+    this._dependencies = dependencies;
+  }
+
+  setDocumentFees(documentFees: DocumentFee[]): void {
+    this._documentFees = documentFees;
   }
 }

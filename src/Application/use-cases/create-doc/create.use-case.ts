@@ -5,6 +5,7 @@ import { IDocumentRepository } from '../../interfaces/document-repository.interf
 import { IEstablishmentRepository } from '../../interfaces/establishment-repository.interface';
 import { CreateDocumentInput } from '../../interfaces/create-document.input';
 import { randomUUID } from 'crypto';
+import { DocumentFee } from 'src/Domain/document/docfee.entity';
 
 @Injectable()
 export class CreateDocumentUseCase {
@@ -19,25 +20,12 @@ export class CreateDocumentUseCase {
     const {
       name,
       type,
-      issuanceFee,
       description,
-      number,
       issueDate,
       expirationDate,
       establishmentId,
       dependencies,
     } = input;
-
-    // Validar campos obrigatórios
-    if (!establishmentId) {
-      throw new Error('O ID do estabelecimento é obrigatório.');
-    }
-
-    if (expirationDate <= issueDate) {
-      throw new Error(
-        'A data de vencimento deve ser posterior à data de emissão.',
-      );
-    }
 
     // Verificar se o estabelecimento existe
     const exists =
@@ -46,35 +34,31 @@ export class CreateDocumentUseCase {
       throw new Error('Estabelecimento não encontrado.');
     }
 
-    // Criar instância de documento
+    // Criar instância de documento (sem ID ainda)
     const document = new Document(
-      randomUUID(), // será atribuído pelo repositório
       name,
       type,
-      issuanceFee,
       description ?? null,
-      number ?? null,
       issueDate,
       expirationDate,
       establishmentId,
+      dependencies?.map((dep) => new Dependency('', dep.dependentDocumentId)) ||
+        [],
     );
 
-    // Persistir o documento
+    // Persistir e obter o ID gerado
     const created = await this.documentRepository.create(document);
+    const documentId = created.getId();
 
-    // Criar dependências, se houver
-    if (dependencies && dependencies.length > 0) {
+    // Dependências
+    if (dependencies?.length) {
       for (const dep of dependencies) {
-        const dependency = new Dependency(
-          randomUUID(),
-          created.id,
-          dep.dependentDocumentId,
-          dep.type ?? 'reference',
-        );
+        const dependency = new Dependency(documentId, dep.dependentDocumentId);
         await this.documentRepository.addDependency(dependency);
+        document.getDependencies().push(dependency);
       }
     }
 
-    return created;
+    return document;
   }
 }

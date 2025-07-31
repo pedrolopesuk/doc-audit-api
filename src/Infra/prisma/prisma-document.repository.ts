@@ -9,29 +9,33 @@ export class PrismaDocumentRepository implements IDocumentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(document: Document): Promise<Document> {
-    const created = await this.prisma.documento.create({
+    const created = await this.prisma.document.create({
       data: {
-        nome: document.name,
-        tipo: document.type,
-        descricao: document.description,
-        numero: document.number,
-        dataEmissao: document.issueDate,
-        validade: document.expirationDate,
-        taxaEmissao: document.issuanceFee,
-        estabelecimentoId: document.establishmentId,
+        name: document.getName(),
+        type: document.getType(),
+        descripton: document.getDescription(),
+        issueDate: document.getIssueDate(),
+        expirationDate: document.getExpirationDate(),
+        establishmentId: document.getEstablishmentId(),
+        dependencies: document.getDependencies().map((dep) => ({
+          documentId: document.getId(),
+          dependentDocumentId: dep.dependentDocumentId,
+          type: dep.type,
+        })),
       },
     });
 
     return new Document(
-      created.id,
-      created.nome,
-      created.tipo,
-      created.taxaEmissao,
-      created.descricao,
-      created.numero,
-      created.dataEmissao,
-      created.validade,
-      created.estabelecimentoId,
+      created.name,
+      created.type,
+      created.description,
+      created.issueDate,
+      created.expirationDate,
+      created.establishmentId,
+      created.dependencies.map(
+        (dep) =>
+          new Dependency(dep.documentId, dep.dependentDocumentId, dep.type),
+      ),
     );
   }
 
