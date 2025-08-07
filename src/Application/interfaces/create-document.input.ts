@@ -1,8 +1,9 @@
 import { DocumentFee } from 'src/Domain/document/docfee.entity';
+import { DocumentTypeEnum } from 'src/Domain/document/doctype.enum';
 
 export interface CreateDocumentInput {
   name: string;
-  type: DocumentType;
+  type: DocumentTypeEnum;
   description?: string | null;
   issueDate: Date;
   expirationDate: Date;

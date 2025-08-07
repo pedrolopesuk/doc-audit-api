@@ -8,14 +8,14 @@ export class PrismaEstablishmentRepository implements IEstablishmentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async existe(id: string): Promise<boolean> {
-    const establishment = await this.prisma.estabelecimento.findUnique({
+    const establishment = await this.prisma.establishment.findUnique({
       where: { id },
     });
     return !!establishment;
   }
 
   async getEstablishmentById(id: string): Promise<Establishment | null> {
-    const establishment = await this.prisma.estabelecimento.findUnique({
+    const establishment = await this.prisma.establishment.findUnique({
       where: { id },
     });
 
@@ -25,41 +25,35 @@ export class PrismaEstablishmentRepository implements IEstablishmentRepository {
 
     return new Establishment(
       establishment.id,
-      establishment.nome,
+      establishment.name,
       establishment.cnpj,
-      establishment.endereco,
+      establishment.address,
     );
   }
 
   async create(establishment: Establishment): Promise<Establishment> {
-    const created = await this.prisma.estabelecimento.create({
+    const created = await this.prisma.establishment.create({
       data: {
         id: establishment.id,
-        nome: establishment.name,
+        name: establishment.name,
         cnpj: establishment.cnpj,
-        endereco: establishment.address,
+        address: establishment.address,
       },
     });
 
     return new Establishment(
       created.id,
-      created.nome,
+      created.name,
       created.cnpj,
-      created.endereco,
+      created.address,
     );
   }
 
   async findAll(): Promise<Establishment[]> {
-    const establishments = await this.prisma.estabelecimento.findMany();
+    const establishments = await this.prisma.establishment.findMany();
 
     return establishments.map(
-      (est) =>
-        new Establishment(
-          est.id,
-          est.nome,
-          est.cnpj,
-          est.endereco,
-        ),
+      (est) => new Establishment(est.id, est.name, est.cnpj, est.address),
     );
   }
 }

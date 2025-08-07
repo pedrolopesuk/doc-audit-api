@@ -1,12 +1,11 @@
 import { Document } from 'src/Domain/document/doc.entity';
 import { DocumentResponseDto } from '../dtos/response-document.dto';
-import { DocumentType } from '../../Domain/document/doctype.enum';
 
 export function toDocumentResponseDto(document: Document): DocumentResponseDto {
   return {
     id: document.getId(),
     name: document.getName(),
-    type: document.getType() as unknown as DocumentType, // mudar isso!!
+    type: document.getType(),
     description: document.getDescription(),
     issueDate: document.getIssueDate(),
     expirationDate: document.getExpirationDate(),

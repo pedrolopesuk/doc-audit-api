@@ -10,6 +10,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DocumentTypeEnum } from 'src/Domain/document/doctype.enum';
 
 export class CreateDependencyDto {
   @IsUUID()
@@ -42,8 +43,8 @@ export class CreateDocumentDto {
   @IsNotEmpty()
   name: string;
 
-  @IsEnum(DocumentType)
-  type: DocumentType;
+  @IsEnum(DocumentTypeEnum)
+  type: DocumentTypeEnum;
 
   @IsOptional()
   @IsString()

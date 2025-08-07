@@ -1,11 +1,12 @@
 import { randomUUID } from 'crypto';
 import { Dependency } from '../dependency/dependency.entity';
 import { DocumentFee } from '../document/docfee.entity';
+import { DocumentTypeEnum } from './doctype.enum';
 
 export class Document {
   private _id: string;
   private _name: string;
-  private _type: DocumentType;
+  private _type: DocumentTypeEnum;
   private _issueDate: Date;
   private _description: string | null;
   private _expirationDate: Date;
@@ -15,7 +16,7 @@ export class Document {
 
   constructor(
     name: string,
-    type: DocumentType,
+    type: DocumentTypeEnum,
     description: string | null,
     issueDate: Date,
     expirationDate: Date,
@@ -45,7 +46,7 @@ export class Document {
     return this._name;
   }
 
-  getType(): DocumentType {
+  getType(): DocumentTypeEnum {
     return this._type;
   }
 
@@ -77,7 +78,7 @@ export class Document {
     this._name = name;
   }
 
-  setType(type: DocumentType): void {
+  setType(type: DocumentTypeEnum): void {
     this._type = type;
   }
 

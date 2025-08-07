@@ -3,6 +3,7 @@ import { PrismaService } from './prisma.service';
 import { IDocumentRepository } from '../../Application/interfaces/document-repository.interface';
 import { Document } from '../../Domain/document/doc.entity';
 import { Dependency } from '../../Domain/dependency/dependency.entity';
+import { DocumentTypeEnum } from '../../Domain/document/doctype.enum';
 
 @Injectable()
 export class PrismaDocumentRepository implements IDocumentRepository {
@@ -13,66 +14,70 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       data: {
         name: document.getName(),
         type: document.getType(),
-        descripton: document.getDescription(),
+        description: document.getDescription(),
         issueDate: document.getIssueDate(),
         expirationDate: document.getExpirationDate(),
         establishmentId: document.getEstablishmentId(),
-        dependencies: document.getDependencies().map((dep) => ({
-          documentId: document.getId(),
-          dependentDocumentId: dep.dependentDocumentId,
-          type: dep.type,
-        })),
+        dependencies: {
+          create: document.getDependencies().map((dep) => ({
+            dependsOn: {
+              connect: { id: dep.dependentDocumentId },
+            },
+          })),
+        },
+      },
+      include: {
+        dependencies: true,
       },
     });
-
     return new Document(
       created.name,
-      created.type,
+      created.type as DocumentTypeEnum,
       created.description,
       created.issueDate,
       created.expirationDate,
       created.establishmentId,
       created.dependencies.map(
-        (dep) =>
-          new Dependency(dep.documentId, dep.dependentDocumentId, dep.type),
+        (dep) => new Dependency(dep.documentId, dep.dependsOnId),
       ),
     );
   }
 
   async addDependency(dependency: Dependency): Promise<void> {
-    await this.prisma.dependencia.create({
+    await this.prisma.dependency.create({
       data: {
-        documentoId: dependency.documentId,
-        dependeDeId: dependency.dependentDocumentId,
-        tipo: dependency.type,
+        documentId: dependency.documentId,
+        dependsOnId: dependency.dependentDocumentId,
       },
     });
   }
 
   async getEstablishmentById(establishmentId: string): Promise<Document[]> {
-    const documentos = await this.prisma.documento.findMany({
-      where: { estabelecimentoId: establishmentId },
+    const documentos = await this.prisma.document.findMany({
+      where: { establishmentId: establishmentId },
+      include: { dependencies: true },
     });
 
     return documentos.map(
       (doc) =>
         new Document(
-          doc.id,
-          doc.nome,
-          doc.tipo,
-          doc.taxaEmissao,
-          doc.descricao,
-          doc.numero,
-          doc.dataEmissao,
-          doc.validade,
-          doc.estabelecimentoId,
+          doc.name,
+          doc.type as DocumentTypeEnum,
+          doc.description,
+          doc.issueDate,
+          doc.expirationDate,
+          doc.establishmentId,
+          doc.dependencies.map(
+            (dep) => new Dependency(dep.documentId, dep.dependsOnId),
+          ),
         ),
     );
   }
 
   async findById(id: string): Promise<Document | null> {
-    const document = await this.prisma.documento.findUnique({
+    const document = await this.prisma.document.findUnique({
       where: { id },
+      include: { dependencies: true },
     });
 
     if (!document) {
@@ -80,35 +85,36 @@ export class PrismaDocumentRepository implements IDocumentRepository {
     }
 
     return new Document(
-      document.id,
-      document.nome,
-      document.tipo,
-      document.taxaEmissao,
-      document.descricao,
-      document.numero,
-      document.dataEmissao,
-      document.validade,
-      document.estabelecimentoId,
+      document.name,
+      document.type as DocumentTypeEnum,
+      document.description,
+      document.issueDate,
+      document.expirationDate,
+      document.establishmentId,
+      document.dependencies.map(
+        (dep) => new Dependency(dep.documentId, dep.dependsOnId),
+      ),
     );
   }
 
   async findAll(): Promise<Document[]> {
-    const documents = await this.prisma.documento.findMany({
-      orderBy: { dataEmissao: 'desc' },
+    const documents = await this.prisma.document.findMany({
+      orderBy: { issueDate: 'desc' },
+      include: { dependencies: true },
     });
 
     return documents.map(
       (doc) =>
         new Document(
-          doc.id,
-          doc.nome,
-          doc.tipo,
-          doc.taxaEmissao,
-          doc.descricao,
-          doc.numero,
-          doc.dataEmissao,
-          doc.validade,
-          doc.estabelecimentoId,
+          doc.name,
+          doc.type as DocumentTypeEnum,
+          doc.description,
+          doc.issueDate,
+          doc.expirationDate,
+          doc.establishmentId,
+          doc.dependencies.map(
+            (dep) => new Dependency(dep.documentId, dep.dependsOnId),
+          ),
         ),
     );
   }

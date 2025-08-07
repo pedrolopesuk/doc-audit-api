@@ -25,12 +25,11 @@ model Establishment {
 model Document {
   id               String        @id @default(uuid())
   name             String
-  type             DocumentType
+  type             String
   description      String?
   number           String?
   issueDate        DateTime
   expirationDate   DateTime
-  issueFee         String
   establishment    Establishment @relation(fields: [establishmentId], references: [id])
   establishmentId  String
 
@@ -47,24 +46,5 @@ model Dependency {
   dependsOn      Document @relation("Requirement", fields: [dependsOnId], references: [id])
   dependsOnId    String
 
-  type           String
-
   @@unique([documentId, dependsOnId])
-}
-
-enum DocumentType {
-  BUSINESS_LICENSE
-  TAX_REGISTRATION
-  CNPJ_REGISTRATION
-  OPERATING_PERMIT
-  FIRE_DEPARTMENT_CERTIFICATE
-  HEALTH_LICENSE
-  TRADE_BOARD_REGISTRATION
-  COMPANY_ARTICLES
-  INSS_CERTIFICATE
-  LABOR_CERTIFICATE
-  FGTS_CERTIFICATE
-  MUNICIPAL_DEBT_CLEARANCE
-  FEDERAL_DEBT_CLEARANCE
-  ENVIRONMENTAL_LICENSE
 }

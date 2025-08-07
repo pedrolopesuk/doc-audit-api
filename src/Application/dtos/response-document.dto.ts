@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DocumentType } from '../../Domain/document/doctype.enum';
+import { DocumentTypeEnum } from '../../Domain/document/doctype.enum';
 
 export class DocumentResponseDto {
   @ApiProperty()
@@ -9,7 +9,7 @@ export class DocumentResponseDto {
   name: string;
 
   @ApiProperty({ enum: DocumentType })
-  type: DocumentType;
+  type: DocumentTypeEnum;
 
   @ApiProperty()
   description: string | null;
