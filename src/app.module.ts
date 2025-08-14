@@ -9,6 +9,7 @@ import { DocumentsController } from './controllers/documents.controller';
 import { EstablishmentsController } from './controllers/establishments.controller';
 import { FeeJsonReaderService } from './Infra/services/fee-json-reader.service';
 import { ImportFeesUseCase } from './Application/use-cases/read-fees/import-fees.use-case';
+import { FeeService } from './Application/services/fee.service';
 
 @Module({
   imports: [],
@@ -29,6 +30,11 @@ import { ImportFeesUseCase } from './Application/use-cases/read-fees/import-fees
     },
     FeeJsonReaderService,
     ImportFeesUseCase,
+    FeeService,
+    {
+      provide: 'FeeReader', // ← String token (mantendo consistente)
+      useClass: FeeJsonReaderService,
+    },
   ],
 })
 export class AppModule {}

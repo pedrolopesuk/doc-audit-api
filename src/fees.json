@@ -1,26 +1,72 @@
 {
-  "identity": {
-    "documentType": "0001",
-    "fees": {
-      "issuance": 50,
-      "renewal": 30,
-      "update": 15
-    }
+  "BUSINESS_LICENSE": {
+    "issuance": 150,
+    "renewal": 100,
+    "update": 50
   },
-  "driverLicense": {
-    "documentType": "0002",
-    "fees": {
-      "issuance": 100,
-      "renewal": 70,
-      "update": 25
-    }
+  "TAX_REGISTRATION": {
+    "issuance": 80,
+    "renewal": 60,
+    "update": 30
   },
-  "passport": {
-    "documentType": "0003",
-    "fees": {
-      "issuance": 200,
-      "renewal": 150,
-      "update": 50
-    }
+  "CNPJ_REGISTRATION": {
+    "issuance": 100,
+    "renewal": 80,
+    "update": 40
+  },
+  "OPERATING_PERMIT": {
+    "issuance": 200,
+    "renewal": 150,
+    "update": 75
+  },
+  "FIRE_DEPARTMENT_CERTIFICATE": {
+    "issuance": 250,
+    "renewal": 200,
+    "update": 100
+  },
+  "HEALTH_LICENSE": {
+    "issuance": 180,
+    "renewal": 120,
+    "update": 60
+  },
+  "TRADE_BOARD_REGISTRATION": {
+    "issuance": 120,
+    "renewal": 90,
+    "update": 45
+  },
+  "COMPANY_ARTICLES": {
+    "issuance": 300,
+    "renewal": 250,
+    "update": 125
+  },
+  "INSS_CERTIFICATE": {
+    "issuance": 50,
+    "renewal": 30,
+    "update": 15
+  },
+  "LABOR_CERTIFICATE": {
+    "issuance": 60,
+    "renewal": 40,
+    "update": 20
+  },
+  "FGTS_CERTIFICATE": {
+    "issuance": 70,
+    "renewal": 50,
+    "update": 25
+  },
+  "MUNICIPAL_DEBT_CLEARANCE": {
+    "issuance": 40,
+    "renewal": 25,
+    "update": 12
+  },
+  "FEDERAL_DEBT_CLEARANCE": {
+    "issuance": 45,
+    "renewal": 30,
+    "update": 15
+  },
+  "ENVIRONMENTAL_LICENSE": {
+    "issuance": 500,
+    "renewal": 400,
+    "update": 200
   }
 }

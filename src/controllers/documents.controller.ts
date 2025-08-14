@@ -14,12 +14,14 @@ import { PrismaDocumentRepository } from '../Infra/prisma/prisma-document.reposi
 import { Document } from '../Domain/document/doc.entity';
 import { toDocumentResponseDto } from '../Application/mappers/response-document.mapper';
 import { DocumentResponseDto } from '../Application/dtos/response-document.dto';
+import { FeeService } from '../Application/services/fee.service';
 
 @Controller('documents')
 export class DocumentsController {
   constructor(
     private readonly createDocumentUseCase: CreateDocumentUseCase,
     private readonly documentRepository: PrismaDocumentRepository,
+    private readonly feeService: FeeService,
   ) {}
 
   @Post()
@@ -81,7 +83,15 @@ export class DocumentsController {
   @Get()
   async getAllDocuments(): Promise<Document[]> {
     try {
-      return await this.documentRepository.findAll();
+      const documents = await this.documentRepository.findAll();
+
+      // Populando as taxas para cada documento usando o FeeService
+      documents.forEach((document) => {
+        const fees = this.feeService.getFeesForDocument(document.getType());
+        document.setDocumentFees(fees);
+      });
+
+      return documents;
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to retrieve documents',

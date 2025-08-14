@@ -1,6 +1,5 @@
 import { randomUUID } from 'crypto';
 import { Dependency } from '../dependency/dependency.entity';
-import { DocumentFee } from '../document/docfee.entity';
 import { DocumentTypeEnum } from './doctype.enum';
 
 export class Document {
@@ -12,7 +11,7 @@ export class Document {
   private _expirationDate: Date;
   private _establishmentId: string;
   private _dependencies: Dependency[];
-  private _documentFees: DocumentFee[];
+  private _documentFees: Map<string, string>;
 
   constructor(
     name: string,
@@ -31,7 +30,7 @@ export class Document {
     this._expirationDate = expirationDate;
     this._establishmentId = establishmentId;
     this._dependencies = dependencies || [];
-    this._documentFees = [];
+    this._documentFees = new Map<string, string>();
   }
 
   isExpired(reference: Date = new Date()): boolean {
@@ -70,7 +69,7 @@ export class Document {
     return this._dependencies;
   }
 
-  getDocumentFees(): DocumentFee[] {
+  getDocumentFees(): Map<string, string> {
     return this._documentFees;
   }
 
@@ -102,7 +101,7 @@ export class Document {
     this._dependencies = dependencies;
   }
 
-  setDocumentFees(documentFees: DocumentFee[]): void {
+  setDocumentFees(documentFees: Map<string, string>): void {
     this._documentFees = documentFees;
   }
 }

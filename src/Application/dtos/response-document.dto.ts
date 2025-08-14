@@ -27,5 +27,5 @@ export class DocumentResponseDto {
   dependencies: string[]; // ou array de IDs ou objetos, conforme desejar
 
   @ApiProperty({ type: 'object', additionalProperties: { type: 'number' } })
-  documentFees: Record<string, number>; // simples para leitura
+  documentFees: Record<string, string>; // simples para leitura
 }
