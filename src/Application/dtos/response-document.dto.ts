@@ -3,9 +3,6 @@ import { DocumentTypeEnum } from '../../Domain/document/doctype.enum';
 
 export class DocumentResponseDto {
   @ApiProperty()
-  id: string;
-
-  @ApiProperty()
   name: string;
 
   @ApiProperty({ enum: DocumentType })

@@ -8,7 +8,6 @@ export function toDocumentResponseDto(document: Document): DocumentResponseDto {
   });
 
   return {
-    id: document.getId(),
     name: document.getName(),
     type: document.getType(),
     description: document.getDescription(),
