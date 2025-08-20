@@ -12,7 +12,12 @@ export class FeeService {
     const allFees = this.feeReader.loadFees();
 
     // Pega apenas o tipo informado no enum
-    const feesForType = allFees[type] ?? {};
+    //const feesForType = allFees[type] ?? {};
+
+    const feesForType = allFees[type];
+    if (!feesForType) {
+      throw new Error(`Tipo de documento não encontrado no fees.json: ${type}`);
+    }
 
     const feeMap = new Map<string, string>();
     Object.entries(feesForType).forEach(([feeName, feeValue]) => {

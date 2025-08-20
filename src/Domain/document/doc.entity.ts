@@ -104,4 +104,10 @@ export class Document {
   setDocumentFees(documentFees: Map<string, string>): void {
     this._documentFees = documentFees;
   }
+
+  addDocumentFee(fees: Map<string, string>): void {
+    fees.forEach((value, key) => {
+      this._documentFees.set(key, value);
+    });
+  }
 }

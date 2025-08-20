@@ -47,11 +47,19 @@ export class DocumentsController {
   @Get('establishment/:establishmentId')
   async getDocumentsByEstablishment(
     @Param('establishmentId') establishmentId: string,
-  ): Promise<Document[]> {
+  ): Promise<DocumentResponseDto[]> {
     try {
-      return await this.documentRepository.getEstablishmentById(
-        establishmentId,
-      );
+      const documents =
+        await this.documentRepository.getEstablishmentById(establishmentId);
+
+      documents.forEach((document) => {
+        const fees = this.feeService.getFeesForDocument(document.getType());
+        document.addDocumentFee(fees);
+      });
+
+      const documentsDto = documents.map((doc) => toDocumentResponseDto(doc));
+
+      return documentsDto;
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to retrieve documents',
@@ -68,6 +76,10 @@ export class DocumentsController {
         throw new HttpException('Document not found', HttpStatus.NOT_FOUND);
       }
 
+      document.addDocumentFee(
+        this.feeService.getFeesForDocument(document.getType()),
+      );
+
       return toDocumentResponseDto(document);
     } catch (error) {
       if (error instanceof HttpException) {
@@ -81,17 +93,18 @@ export class DocumentsController {
   }
 
   @Get()
-  async getAllDocuments(): Promise<Document[]> {
+  async getAllDocuments(): Promise<DocumentResponseDto[]> {
     try {
       const documents = await this.documentRepository.findAll();
 
-      // Populando as taxas para cada documento usando o FeeService
       documents.forEach((document) => {
         const fees = this.feeService.getFeesForDocument(document.getType());
-        document.setDocumentFees(fees);
+        document.addDocumentFee(fees);
       });
 
-      return documents;
+      const documentsDto = documents.map((doc) => toDocumentResponseDto(doc));
+
+      return documentsDto;
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to retrieve documents',
