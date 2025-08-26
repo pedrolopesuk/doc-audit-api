@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { IDocumentRepository } from '../../Application/interfaces/document-repository.interface';
 import { Document } from '../../Domain/document/doc.entity';
@@ -37,18 +38,57 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       created.issueDate,
       created.expirationDate,
       created.establishmentId,
-      created.dependencies.map(
-        (dep) => new Dependency(dep.documentId, dep.dependsOnId),
-      ),
     );
   }
 
-  async addDependency(dependency: Dependency): Promise<void> {
-    await this.prisma.dependency.create({
-      data: {
-        documentId: dependency.documentId,
-        dependsOnId: dependency.dependentDocumentId,
-      },
+  async addDependency(
+    dependency: { dependsOnId: string } | { dependentDocumentId: string },
+    documentId: string,
+  ): Promise<void> {
+    // aceita ambos os nomes e normaliza
+    const dependsOnId =
+      (dependency as any).dependsOnId ??
+      (dependency as any).dependentDocumentId;
+
+    await this.prisma.$transaction(async (tx) => {
+      // 1) valida doc dono
+      const doc = await tx.document.findUnique({
+        where: { id: documentId },
+        select: { id: true },
+      });
+      if (!doc) {
+        throw new NotFoundException(`Documento ${documentId} não existe.`);
+      }
+
+      // 2) valida doc requisito
+      if (!dependsOnId) {
+        throw new BadRequestException('dependsOnId é obrigatório.');
+      }
+      if (dependsOnId === documentId) {
+        throw new BadRequestException(
+          'Um documento não pode depender de si mesmo.',
+        );
+      }
+
+      const req = await tx.document.findUnique({
+        where: { id: dependsOnId },
+        select: { id: true },
+      });
+      if (!req) {
+        throw new NotFoundException(
+          `Documento dependente ${dependsOnId} não existe.`,
+        );
+      }
+
+      // 3) cria a dependência (idempotente por conta do @@unique)
+      await tx.dependency.upsert({
+        where: {
+          // usa a constraint composta criada pelo @@unique([documentId, dependsOnId])
+          documentId_dependsOnId: { documentId, dependsOnId },
+        },
+        update: {}, // nada a atualizar se já existir
+        create: { documentId, dependsOnId },
+      });
     });
   }
 
@@ -67,9 +107,6 @@ export class PrismaDocumentRepository implements IDocumentRepository {
           doc.issueDate,
           doc.expirationDate,
           doc.establishmentId,
-          doc.dependencies.map(
-            (dep) => new Dependency(dep.documentId, dep.dependsOnId),
-          ),
         ),
     );
   }
@@ -91,9 +128,6 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       document.issueDate,
       document.expirationDate,
       document.establishmentId,
-      document.dependencies.map(
-        (dep) => new Dependency(dep.documentId, dep.dependsOnId),
-      ),
     );
   }
 
@@ -112,9 +146,6 @@ export class PrismaDocumentRepository implements IDocumentRepository {
           doc.issueDate,
           doc.expirationDate,
           doc.establishmentId,
-          doc.dependencies.map(
-            (dep) => new Dependency(dep.documentId, dep.dependsOnId),
-          ),
         ),
     );
   }

@@ -22,18 +22,7 @@ export class CreateDependencyDto {
   type?: string;
 }
 
-class FeeInput {
-  @IsString()
-  @IsNotEmpty()
-  type: string;
-
-  @IsNumber()
-  amount: number;
-}
-
-class DependencyInput {
-  @IsUUID()
-  documentId: string;
+class DependencyDto {
   @IsUUID()
   dependentDocumentId: string;
 }
@@ -64,6 +53,6 @@ export class CreateDocumentDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => DependencyInput)
-  dependencies?: DependencyInput[];
+  @Type(() => DependencyDto)
+  dependencies?: DependencyDto[];
 }

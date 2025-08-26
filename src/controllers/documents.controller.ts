@@ -7,6 +7,7 @@ import {
   ValidationPipe,
   HttpException,
   HttpStatus,
+  Dependencies,
 } from '@nestjs/common';
 import { CreateDocumentUseCase } from '../Application/use-cases/create-doc/create.use-case';
 import { CreateDocumentDto } from '../Application/dtos/create-document.dto';
@@ -15,6 +16,7 @@ import { Document } from '../Domain/document/doc.entity';
 import { toDocumentResponseDto } from '../Application/mappers/response-document.mapper';
 import { DocumentResponseDto } from '../Application/dtos/response-document.dto';
 import { FeeService } from '../Application/services/fee.service';
+import { Dependency } from '../Domain/dependency/dependency.entity';
 
 @Controller('documents')
 export class DocumentsController {
@@ -35,7 +37,22 @@ export class DocumentsController {
         expirationDate: new Date(createDocumentDto.expirationDate),
       };
 
-      return await this.createDocumentUseCase.execute(input);
+      const document = await this.createDocumentUseCase.execute(input);
+
+      if (input.dependencies?.length) {
+        for (const dep of input.dependencies) {
+          const dependency = new Dependency(
+            document.getId(),
+            dep.dependentDocumentId,
+          );
+          await this.documentRepository.addDependency(
+            dependency,
+            document.getId(),
+          );
+        }
+      }
+
+      return document;
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to create document',

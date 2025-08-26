@@ -20,7 +20,6 @@ export class Document {
     issueDate: Date,
     expirationDate: Date,
     establishmentId: string,
-    dependencies: Dependency[] | null,
   ) {
     this._id = randomUUID();
     this._name = name;
@@ -29,7 +28,7 @@ export class Document {
     this._issueDate = issueDate;
     this._expirationDate = expirationDate;
     this._establishmentId = establishmentId;
-    this._dependencies = dependencies || [];
+    this._dependencies = [];
     this._documentFees = new Map<string, string>();
   }
 
@@ -109,5 +108,9 @@ export class Document {
     fees.forEach((value, key) => {
       this._documentFees.set(key, value);
     });
+  }
+
+  addDependency(dependency: Dependency): void {
+    this._dependencies.push(dependency);
   }
 }

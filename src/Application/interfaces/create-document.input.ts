@@ -8,11 +8,13 @@ export interface CreateDocumentInput {
   issueDate: Date;
   expirationDate: Date;
   establishmentId: string;
-  dependencies?: {
-    dependentDocumentId: string;
-  }[];
+  dependencies?: DependencyInput[];
   documentFees?: {
     documentId: string;
     fees: Map<string, number>;
   }[];
+}
+
+interface DependencyInput {
+  dependentDocumentId: string;
 }
