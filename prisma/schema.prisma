@@ -27,7 +27,6 @@ model Document {
   name             String
   type             String
   description      String?
-  number           String?
   issueDate        DateTime
   expirationDate   DateTime
   establishment    Establishment @relation(fields: [establishmentId], references: [id])

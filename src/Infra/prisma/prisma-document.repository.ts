@@ -32,6 +32,7 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       },
     });
     return new Document(
+      created.id,
       created.name,
       created.type as DocumentTypeEnum,
       created.description,
@@ -41,17 +42,10 @@ export class PrismaDocumentRepository implements IDocumentRepository {
     );
   }
 
-  async addDependency(
-    dependency: { dependsOnId: string } | { dependentDocumentId: string },
-    documentId: string,
-  ): Promise<void> {
-    // aceita ambos os nomes e normaliza
-    const dependsOnId =
-      (dependency as any).dependsOnId ??
-      (dependency as any).dependentDocumentId;
-
+  async addDependency(documentId: string, dependsOnId: string): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      // 1) valida doc dono
+      // 1) valida doc dono[]
+      console.log('id procurado', documentId);
       const doc = await tx.document.findUnique({
         where: { id: documentId },
         select: { id: true },
@@ -61,22 +55,12 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       }
 
       // 2) valida doc requisito
-      if (!dependsOnId) {
+      if (!documentId) {
         throw new BadRequestException('dependsOnId é obrigatório.');
       }
       if (dependsOnId === documentId) {
         throw new BadRequestException(
           'Um documento não pode depender de si mesmo.',
-        );
-      }
-
-      const req = await tx.document.findUnique({
-        where: { id: dependsOnId },
-        select: { id: true },
-      });
-      if (!req) {
-        throw new NotFoundException(
-          `Documento dependente ${dependsOnId} não existe.`,
         );
       }
 
@@ -101,6 +85,7 @@ export class PrismaDocumentRepository implements IDocumentRepository {
     return documentos.map(
       (doc) =>
         new Document(
+          doc.id,
           doc.name,
           doc.type as DocumentTypeEnum,
           doc.description,
@@ -121,14 +106,21 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       return null;
     }
 
-    return new Document(
+    // Mapeia as dependências para instâncias de Dependency
+    const dependencies = (document.dependencies || []).map((dep: any) =>
+      new Dependency(document.id, dep.dependsOnId)
+    );
+    const docEntity = new Document(
+      document.id,
       document.name,
       document.type as DocumentTypeEnum,
       document.description,
       document.issueDate,
       document.expirationDate,
-      document.establishmentId,
+      document.establishmentId
     );
+    docEntity.setDependencies(dependencies);
+    return docEntity;
   }
 
   async findAll(): Promise<Document[]> {
@@ -140,6 +132,7 @@ export class PrismaDocumentRepository implements IDocumentRepository {
     return documents.map(
       (doc) =>
         new Document(
+          doc.id,
           doc.name,
           doc.type as DocumentTypeEnum,
           doc.description,

@@ -31,23 +31,35 @@ export class DocumentsController {
     @Body(ValidationPipe) createDocumentDto: CreateDocumentDto,
   ): Promise<Document> {
     try {
+
+      // Gera um UUID se não vier no DTO
+      const { v4: uuidv4 } = require('uuid');
       const input = {
         ...createDocumentDto,
+        id: createDocumentDto.id && createDocumentDto.id !== '' ? createDocumentDto.id : uuidv4(),
         issueDate: new Date(createDocumentDto.issueDate),
         expirationDate: new Date(createDocumentDto.expirationDate),
       };
 
       const document = await this.createDocumentUseCase.execute(input);
 
+
+      // Corrige o acesso ao id do documento
+      const documentId = typeof document.getId === 'function' ? document.getId() : undefined;
+
+      if (!documentId) {
+        throw new HttpException('Falha ao obter o id do documento', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
       if (input.dependencies?.length) {
         for (const dep of input.dependencies) {
           const dependency = new Dependency(
-            document.getId(),
+            documentId,
             dep.dependentDocumentId,
           );
           await this.documentRepository.addDependency(
-            dependency,
-            document.getId(),
+            documentId,
+            dependency.dependentDocumentId,
           );
         }
       }

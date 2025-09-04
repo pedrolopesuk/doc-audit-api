@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { Dependency } from '../dependency/dependency.entity';
 import { DocumentTypeEnum } from './doctype.enum';
 
@@ -14,6 +13,7 @@ export class Document {
   private _documentFees: Map<string, string>;
 
   constructor(
+    id: string,
     name: string,
     type: DocumentTypeEnum,
     description: string | null,
@@ -21,7 +21,7 @@ export class Document {
     expirationDate: Date,
     establishmentId: string,
   ) {
-    this._id = randomUUID();
+    this._id = id;
     this._name = name;
     this._type = type;
     this._description = description;

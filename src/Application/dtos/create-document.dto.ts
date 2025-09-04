@@ -28,6 +28,10 @@ class DependencyDto {
 }
 
 export class CreateDocumentDto {
+  @IsUUID()
+  @IsOptional()
+  id?: string;
+
   @IsString()
   @IsNotEmpty()
   name: string;

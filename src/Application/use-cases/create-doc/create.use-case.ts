@@ -16,6 +16,7 @@ export class CreateDocumentUseCase {
 
   async execute(input: CreateDocumentInput): Promise<Document> {
     const {
+      id,
       name,
       type,
       description,
@@ -32,6 +33,7 @@ export class CreateDocumentUseCase {
     }
 
     const document = new Document(
+      id,
       name,
       type,
       description ?? null,
