@@ -46,7 +46,7 @@ export class DocumentsController {
     }
   }
 
-  @Get('establishment/:establishmentId')
+  @Get('establishment/:id')
   async getDocumentsByEstablishment(
     @Param('establishmentId') establishmentId: string,
   ): Promise<DocumentResponseDto[]> {

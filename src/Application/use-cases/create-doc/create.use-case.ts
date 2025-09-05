@@ -56,6 +56,7 @@ export class CreateDocumentUseCase {
           dependency.documentId,
           dependency.dependentDocumentId,
         );
+        createdDocument.addDependency(dependency);
       }
     }
 
