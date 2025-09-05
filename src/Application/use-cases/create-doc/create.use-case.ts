@@ -23,6 +23,7 @@ export class CreateDocumentUseCase {
       issueDate,
       expirationDate,
       establishmentId,
+      dependencies,
     } = input;
 
     // Verificar se o estabelecimento existe
@@ -42,6 +43,22 @@ export class CreateDocumentUseCase {
       establishmentId,
     );
 
-    return await this.documentRepository.create(document);
+    const createdDocument = await this.documentRepository.create(document);
+
+    // Cria dependências se existirem
+    if (dependencies?.length) {
+      for (const dep of dependencies) {
+        const dependency = new Dependency(
+          createdDocument.getId(),
+          dep.dependentDocumentId,
+        );
+        await this.documentRepository.addDependency(
+          dependency.documentId,
+          dependency.dependentDocumentId,
+        );
+      }
+    }
+
+    return createdDocument;
   }
 }

@@ -4,6 +4,22 @@ import { DocumentTypeEnum } from '../../Domain/document/doctype.enum';
 
 @Injectable()
 export class FeeService {
+  /**
+   * Aplica as taxas aos documentos informados.
+   * @param documents Array de Document
+   */
+  attachFeesToDocuments(
+    documents: {
+      getType: () => any;
+      addDocumentFee: (fees: Map<string, string>) => void;
+    }[],
+  ): void {
+    documents.forEach((document) => {
+      const fees = this.getFeesForDocument(document.getType());
+      document.addDocumentFee(fees);
+    });
+  }
+
   constructor(
     @Inject('FeeReader') private readonly feeReader: FeeReader, // ← Usar @Inject com string token
   ) {}

@@ -7,16 +7,13 @@ import {
   ValidationPipe,
   HttpException,
   HttpStatus,
-  Dependencies,
 } from '@nestjs/common';
 import { CreateDocumentUseCase } from '../Application/use-cases/create-doc/create.use-case';
 import { CreateDocumentDto } from '../Application/dtos/create-document.dto';
 import { PrismaDocumentRepository } from '../Infra/prisma/prisma-document.repository';
-import { Document } from '../Domain/document/doc.entity';
 import { toDocumentResponseDto } from '../Application/mappers/response-document.mapper';
 import { DocumentResponseDto } from '../Application/dtos/response-document.dto';
 import { FeeService } from '../Application/services/fee.service';
-import { Dependency } from '../Domain/dependency/dependency.entity';
 
 @Controller('documents')
 export class DocumentsController {
@@ -29,42 +26,18 @@ export class DocumentsController {
   @Post()
   async create(
     @Body(ValidationPipe) createDocumentDto: CreateDocumentDto,
-  ): Promise<Document> {
+  ): Promise<DocumentResponseDto> {
     try {
-
-      // Gera um UUID se não vier no DTO
-      const { v4: uuidv4 } = require('uuid');
-      const input = {
+      // Apenas delega ao use case, que deve tratar UUID, datas, dependências, taxas, etc.
+      // Garante que o id seja string
+      const dtoWithId = {
         ...createDocumentDto,
-        id: createDocumentDto.id && createDocumentDto.id !== '' ? createDocumentDto.id : uuidv4(),
-        issueDate: new Date(createDocumentDto.issueDate),
-        expirationDate: new Date(createDocumentDto.expirationDate),
+        id: createDocumentDto.id ?? '',
       };
-
-      const document = await this.createDocumentUseCase.execute(input);
-
-
-      // Corrige o acesso ao id do documento
-      const documentId = typeof document.getId === 'function' ? document.getId() : undefined;
-
-      if (!documentId) {
-        throw new HttpException('Falha ao obter o id do documento', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-
-      if (input.dependencies?.length) {
-        for (const dep of input.dependencies) {
-          const dependency = new Dependency(
-            documentId,
-            dep.dependentDocumentId,
-          );
-          await this.documentRepository.addDependency(
-            documentId,
-            dependency.dependentDocumentId,
-          );
-        }
-      }
-
-      return document;
+      // Executa o use case e converte para DTO de resposta
+      const document = await this.createDocumentUseCase.execute(dtoWithId);
+      // Converte para DocumentResponseDto se necessário
+      return toDocumentResponseDto(document);
     } catch (error) {
       throw new HttpException(
         error.message || 'Failed to create document',
@@ -81,10 +54,7 @@ export class DocumentsController {
       const documents =
         await this.documentRepository.getEstablishmentById(establishmentId);
 
-      documents.forEach((document) => {
-        const fees = this.feeService.getFeesForDocument(document.getType());
-        document.addDocumentFee(fees);
-      });
+      this.feeService.attachFeesToDocuments(documents);
 
       const documentsDto = documents.map((doc) => toDocumentResponseDto(doc));
 
@@ -105,9 +75,7 @@ export class DocumentsController {
         throw new HttpException('Document not found', HttpStatus.NOT_FOUND);
       }
 
-      document.addDocumentFee(
-        this.feeService.getFeesForDocument(document.getType()),
-      );
+      this.feeService.attachFeesToDocuments([document]);
 
       return toDocumentResponseDto(document);
     } catch (error) {
@@ -126,10 +94,7 @@ export class DocumentsController {
     try {
       const documents = await this.documentRepository.findAll();
 
-      documents.forEach((document) => {
-        const fees = this.feeService.getFeesForDocument(document.getType());
-        document.addDocumentFee(fees);
-      });
+      this.feeService.attachFeesToDocuments(documents);
 
       const documentsDto = documents.map((doc) => toDocumentResponseDto(doc));
 

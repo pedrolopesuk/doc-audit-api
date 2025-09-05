@@ -82,18 +82,22 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       include: { dependencies: true },
     });
 
-    return documentos.map(
-      (doc) =>
-        new Document(
-          doc.id,
-          doc.name,
-          doc.type as DocumentTypeEnum,
-          doc.description,
-          doc.issueDate,
-          doc.expirationDate,
-          doc.establishmentId,
-        ),
-    );
+    return documentos.map((doc) => {
+      const dependencies = (doc.dependencies || []).map(
+        (dep: any) => new Dependency(doc.id, dep.dependsOnId),
+      );
+      const docEntity = new Document(
+        doc.id,
+        doc.name,
+        doc.type as DocumentTypeEnum,
+        doc.description,
+        doc.issueDate,
+        doc.expirationDate,
+        doc.establishmentId,
+      );
+      docEntity.setDependencies(dependencies);
+      return docEntity;
+    });
   }
 
   async findById(id: string): Promise<Document | null> {
@@ -107,8 +111,8 @@ export class PrismaDocumentRepository implements IDocumentRepository {
     }
 
     // Mapeia as dependências para instâncias de Dependency
-    const dependencies = (document.dependencies || []).map((dep: any) =>
-      new Dependency(document.id, dep.dependsOnId)
+    const dependencies = (document.dependencies || []).map(
+      (dep: any) => new Dependency(document.id, dep.dependsOnId),
     );
     const docEntity = new Document(
       document.id,
@@ -117,7 +121,7 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       document.description,
       document.issueDate,
       document.expirationDate,
-      document.establishmentId
+      document.establishmentId,
     );
     docEntity.setDependencies(dependencies);
     return docEntity;
@@ -129,17 +133,21 @@ export class PrismaDocumentRepository implements IDocumentRepository {
       include: { dependencies: true },
     });
 
-    return documents.map(
-      (doc) =>
-        new Document(
-          doc.id,
-          doc.name,
-          doc.type as DocumentTypeEnum,
-          doc.description,
-          doc.issueDate,
-          doc.expirationDate,
-          doc.establishmentId,
-        ),
-    );
+    return documents.map((doc) => {
+      const dependencies = (doc.dependencies || []).map(
+        (dep: any) => new Dependency(doc.id, dep.dependsOnId),
+      );
+      const docEntity = new Document(
+        doc.id,
+        doc.name,
+        doc.type as DocumentTypeEnum,
+        doc.description,
+        doc.issueDate,
+        doc.expirationDate,
+        doc.establishmentId,
+      );
+      docEntity.setDependencies(dependencies);
+      return docEntity;
+    });
   }
 }
